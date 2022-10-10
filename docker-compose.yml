@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  reverse-proxy:
+    container_name: reverse-proxy
+    image: traefik:v2.9
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  app:
+    container_name: app
+    env_file:
+      - .env
+    volumes:
+      - ./app:/go/src/app
+    build:
+      context: .
+      target: build
+      args:
+        - GOLANG_BUILD_TAG=$GOLANG_BUILD_TAG
+        - ALPINE_TAG=$ALPINE_TAG
+    command: reflex -r "\.go$$" -s -- sh -c "go run ./"
+    environment:
+      - ENV=dev
+      - PORT=8080
+    expose:
+      - "8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`app.test`)"
