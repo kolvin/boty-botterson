@@ -12,24 +12,19 @@ import (
 
 // Variables used for command line parameters
 var (
-	token string
+	Token string
 )
 
 func init() {
-	flag.StringVar(&token, "t", "", "Boty Token")
+
+	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.Parse()
 }
 
 func main() {
 
-	if token == "" {
-		fmt.Println("No token provided. Please run: airhorn -t <bot token>")
-		return
-	}
-
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + token)
-	fmt.Println(token)
+	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
@@ -41,7 +36,6 @@ func main() {
 	// In this example, we only care about receiving message events.
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
-	fmt.Println("made it")
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
 	if err != nil {
@@ -50,7 +44,7 @@ func main() {
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running. Press CTRL-C to exit.")
+	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -59,13 +53,13 @@ func main() {
 	dg.Close()
 }
 
-type Gopher struct {
-	Name string `json: "name"`
-}
-
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	fmt.Println("Message event caught ")
+	fmt.Println(m.ChannelID)
+	s.ChannelMessageSend(m.ChannelID, "pong!")
 
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
@@ -73,7 +67,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!pokeboty" {
-		fmt.Println("Don fuckin' poke me, prick!")
-	}
+	// @TODO conditions dont seem to catch
+
+	// // If the message is "ping" reply with "Pong!"
+	// if m.Content == "ping" {
+	// 	s.ChannelMessageSend(m.ChannelID, "pong!")
+	// }
+
+	// // If the message is "pong" reply with "Ping!"
+	// if m.Content == "pong" {
+	// 	s.ChannelMessageSend(m.ChannelID, "ping!")
+	// }
 }
