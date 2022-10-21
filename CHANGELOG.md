@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/kolvin/boty-botterson/compare/v1.0.0...v1.0.1) (2022-10-21)
+
+
+### Bug Fixes
+
+* **bot:** mvp bot responding to specific message content, ping pong ([d3044fa](https://github.com/kolvin/boty-botterson/commit/d3044fa303e195a1b767c6a4103d2fc6be7163b7))
+
 # 1.0.0 (2022-10-11)
 
 
