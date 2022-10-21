@@ -23,59 +23,50 @@ func init() {
 
 func main() {
 
+	testingChannel := "964268040780918824"
+
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+	discordSession, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
 	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(messageCreate)
+	discordSession.AddHandler(messageCreate)
 
-	// In this example, we only care about receiving message events.
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	// https://discordjs.guide/popular-topics/intents.html#gateway-intents
+	// Discord permissions
+	discordSession.Identify.Intents |= discordgo.IntentMessageContent
 
 	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
+	err = discordSession.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	fmt.Println("Boty Botterson has initialized...")
+	fmt.Println("Press CTRL-C to exit.")
+	discordSession.ChannelMessageSend(testingChannel, "Boty Botterson has initialized... 🤖")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
+	discordSession.ChannelMessageSend(testingChannel, "Boty Botterson has shutdown... 👋🏻")
 	// Cleanly close down the Discord session.
-	dg.Close()
+	discordSession.Close()
 }
 
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	fmt.Println("Message event caught ")
-	fmt.Println(m.ChannelID)
-	s.ChannelMessageSend(m.ChannelID, "pong!")
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
+	// If the message is "ping" reply with "Pong!"
+	if m.Content == "!ping" {
+		s.ChannelMessageSend(m.ChannelID, "pong!")
 	}
 
-	// @TODO conditions dont seem to catch
-
-	// // If the message is "ping" reply with "Pong!"
-	// if m.Content == "ping" {
-	// 	s.ChannelMessageSend(m.ChannelID, "pong!")
-	// }
-
-	// // If the message is "pong" reply with "Ping!"
-	// if m.Content == "pong" {
-	// 	s.ChannelMessageSend(m.ChannelID, "ping!")
-	// }
+	// If the message is "pong" reply with "Ping!"
+	if m.Content == "!pong" {
+		s.ChannelMessageSend(m.ChannelID, "ping!")
+	}
 }
